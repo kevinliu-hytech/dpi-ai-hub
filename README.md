@@ -43,7 +43,7 @@ This repo is the **main orchestration layer**. It calls two external agent APIs 
 
 | Service | Repo | Endpoint | Auth |
 |---------|------|----------|------|
-| Competitor Social Media | [chiachunghytech/Competitor-Dashboard-Study](https://github.com/chiachunghytech/Competitor-Dashboard-Study) | `http://localhost:PORT/competitor-api` | API Key |
+| Competitor Social Media | [chiachunghytech/Competitor-Dashboard-Study](https://github.com/chiachunghytech/Competitor-Dashboard-Study) | `http://localhost:8764/competitor-api` | API Key |
 | BI Digest Chatbot | [maiphanhytech/bi-digest-chatbot](https://github.com/maiphanhytech/bi-digest-chatbot) | `http://localhost:5022/bi-digest-chatbot/ask` | None (internal) |
 
 ## Tech Stack
