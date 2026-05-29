@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPI Executive Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/gbis-analysis/static/chat_style.css?v=5">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">G</div>
+                    <span class="logo-text">DPI Assistant</span>
+                </div>
+                <button class="new-chat-btn" onclick="newConversation()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    New Chat
+                </button>
+            </div>
+            <div class="sidebar-conversations" id="conversationList">
+            </div>
+            <div class="sidebar-footer">
+                <div class="manage-bar" id="manageBar" style="display:none;">
+                    <button class="manage-action-btn delete" onclick="deleteSelected()">Delete Selected</button>
+                    <button class="manage-action-btn cancel" onclick="toggleManage()">Cancel</button>
+                </div>
+                <div class="footer-actions">
+                    <button class="manage-btn" id="manageBtn" onclick="toggleManage()">Manage</button>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">K</div>
+                    <span>Executive</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Welcome screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect width="48" height="48" rx="12" fill="#1a1a2e" fill-opacity="0.08"/>
+                            <path d="M24 14v20M14 24h20" stroke="#1a1a2e" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h1>DPI Executive Assistant</h1>
+                    <p>询问业务指标、业绩表现和趋势分析。支持中英文提问。</p>
+                    <div class="suggestion-grid">
+                        <button class="suggestion-card" onclick="sendSuggestion('STAR品牌本季度NRFR表现如何？对比目标完成情况')">
+                            <div class="suggestion-title">NRFR 达成</div>
+                            <div class="suggestion-desc">STAR品牌 vs 季度目标</div>
+                        </button>
+                        <button class="suggestion-card" onclick="sendSuggestion('对比各品牌本月TDAU和收入表现')">
+                            <div class="suggestion-title">品牌对比</div>
+                            <div class="suggestion-desc">TDAU和收入 跨品牌分析</div>
+                        </button>
+                        <button class="suggestion-card" onclick="sendSuggestion('本月各品牌的NDM表现如何？')">
+                            <div class="suggestion-title">NDM 分析</div>
+                            <div class="suggestion-desc">各品牌净入金率</div>
+                        </button>
+                        <button class="suggestion-card" onclick="sendSuggestion('STAR本季度FTD最多的前10个国家是哪些？')">
+                            <div class="suggestion-title">Top 市场</div>
+                            <div class="suggestion-desc">STAR品牌 FTD地区分布</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <!-- Input area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Ask about business metrics..."
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 10l7-7m0 0l7 7m-7-7v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90, 10, 10)"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer">
+                    DPI Executive Assistant can make mistakes. Verify important data with the BI team.
+                </div>
+                <div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:4px;">
+                    DPI 部门 · Developed by Kevin Liu, Uyen Mai Phan Ngoc and Lim Chia Chung
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/gbis-analysis/chat';
+    </script>
+    <script src="/gbis-analysis/static/chat_app.js?v=8"></script>
+</body>
+</html>

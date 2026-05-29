@@ -1,0 +1,214 @@
+[
+  {
+    "id": "route_01",
+    "description": "247 Gold trading volume is internal data",
+    "question": "GS 247 Gold最近的趋势如何 这个交易量是从什么时候开始的",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["247 Gold", "GS"],
+      "sql_not_contains": [],
+      "answer_contains": ["247 Gold"],
+      "answer_not_contains": ["社交媒体", "external", "未找到"]
+    }
+  },
+  {
+    "id": "route_02",
+    "description": "Customer type (Retail/IB/Hybrid) is internal data",
+    "question": "阿联酋的客户类型（Retail/IB/Hybrid）结构是怎样的?",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["client_type"],
+      "sql_not_contains": [],
+      "answer_not_contains": ["社交媒体", "外部竞品"]
+    }
+  },
+  {
+    "id": "route_03",
+    "description": "XM social media is external data",
+    "question": "XM在YouTube有多少粉丝",
+    "history": [],
+    "checks": {
+      "route": "external_social",
+      "answer_contains": ["YouTube"],
+      "answer_not_contains": ["内部数据"]
+    }
+  },
+  {
+    "id": "route_04",
+    "description": "XM content about gold is external (semantic search)",
+    "question": "What has XM posted about gold trading",
+    "history": [],
+    "checks": {
+      "route": "external_social",
+      "answer_not_contains": ["无法", "未配置"]
+    }
+  },
+  {
+    "id": "sql_01",
+    "description": "Weekend filter uses correct DAYOFWEEK values",
+    "question": "最近周末GS有没有黄金交易量",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["DAYOFWEEK", "1", "7"],
+      "data_check": {"min_rows": 2},
+      "answer_contains": ["247 Gold"]
+    }
+  },
+  {
+    "id": "sql_02",
+    "description": "247 Gold exact match when specifically asked",
+    "question": "GS的247 Gold交易主要来自哪些国家",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["247 Gold"],
+      "sql_not_contains": ["LIKE '%Gold%'"],
+      "answer_contains": ["UAE", "United Arab Emirates", "India", "Israel", "阿联酋", "印度"],
+      "answer_contains_any": true
+    }
+  },
+  {
+    "id": "sql_03",
+    "description": "Generic Gold query should include both Gold and 247 Gold",
+    "question": "GS黄金产品的整体交易量如何",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["Gold"],
+      "answer_contains": ["247 Gold", "Gold"],
+      "answer_not_contains": ["社交媒体"]
+    }
+  },
+  {
+    "id": "chart_01",
+    "description": "Content question should NOT show chart",
+    "question": "What has XM posted about gold trading",
+    "history": [],
+    "checks": {
+      "route": "external_social",
+      "chart": {"show": false}
+    }
+  },
+  {
+    "id": "chart_02",
+    "description": "Time series data should use line chart with date on X",
+    "question": "GS的247 Gold近一个月的交易量趋势",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "chart": {"show": true, "type": "line", "x_contains": "date", "y_not_contains": "dow"}
+    }
+  },
+  {
+    "id": "chart_03",
+    "description": "Factual question (what platforms) should NOT show chart",
+    "question": "What social media platforms does XM currently have data for",
+    "history": [],
+    "checks": {
+      "route": "external_social",
+      "chart": {"show": false}
+    }
+  },
+  {
+    "id": "context_01",
+    "description": "Follow-up question stays in same agent (internal)",
+    "question": "对比工作日呢",
+    "history": [
+      {"role": "user", "content": "最近周末GS有没有黄金交易量"},
+      {"role": "assistant", "content": "有，全部来自247 Gold产品，传统Gold周末零交易。最近一个周末合计成交$206.9万。"}
+    ],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["GS", "Gold"],
+      "answer_not_contains": ["社交媒体", "external"]
+    }
+  },
+  {
+    "id": "context_02",
+    "description": "Follow-up about country distribution stays internal",
+    "question": "那主要来自哪些国家",
+    "history": [
+      {"role": "user", "content": "GS的247 Gold交易量趋势如何"},
+      {"role": "assistant", "content": "GS 247 Gold近期呈上升趋势，5/24单日$167.6万为近5周峰值。"}
+    ],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["country", "247 Gold"],
+      "answer_not_contains": ["社交媒体"]
+    }
+  },
+  {
+    "id": "data_01",
+    "description": "Weekend 247 Gold volume should be in millions not billions",
+    "question": "GS最近5个周末的247 Gold累计交易量是多少",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["247 Gold", "DAYOFWEEK"],
+      "data_check": {"min_rows": 1},
+      "value_range": {
+        "description": "Total weekend 247 Gold volume ~$3-5M, NOT billions",
+        "answer_not_contains": ["B", "十亿", "百亿", "千亿"]
+      }
+    }
+  },
+  {
+    "id": "nrfr_target_01",
+    "description": "NRFR target completion with correct quarter_progress (DATEDIFF-based, no +1)",
+    "question": "STAR品牌本季度NRFR表现如何？对比目标完成情况",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["dim_kpi_target", "STAR"],
+      "answer_contains": ["NRFR", "est."],
+      "answer_not_contains": ["社交媒体"],
+      "chart": {"show": true, "type": "progress"},
+      "data_check": {"min_rows": 1},
+      "value_range": {
+        "description": "Forecast B completion should be ~145% (not 143%), A ~102% (not 101%). Quarter progress must use DATEDIFF without +1 to match DataWind.",
+        "progress_forecast_check": true
+      }
+    }
+  },
+  {
+    "id": "region_01",
+    "description": "Region grouping should use second_region_name (4 regions), not country",
+    "question": "可以给我看PU过去30天的net deposit 按地区分组么",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["second_region_name"],
+      "sql_not_contains": ["country"],
+      "chart": {"show": true, "type": "line", "x_contains": "date"},
+      "data_check": {"min_rows": 20},
+      "answer_not_contains": ["社交媒体"]
+    }
+  },
+  {
+    "id": "multi_metric_01",
+    "description": "Multiple metrics should generate multiple charts, one per metric",
+    "question": "给我一个PU 各个地区 ftt, gross deposit, net deposit, trading volume的近30天趋势图，每个指标一张图 分不同区域",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "sql_contains": ["second_region_name", "PU"],
+      "chart": {"show": true, "multi_chart": true, "min_charts": 3},
+      "data_check": {"min_rows": 20},
+      "answer_not_contains": ["UM"]
+    }
+  },
+  {
+    "id": "lang_01",
+    "description": "Chinese question with English metric names should respond in Chinese",
+    "question": "给我一个PU 各个地区 ftt, gross deposit, net deposit, trading volume的近30天趋势图",
+    "history": [],
+    "checks": {
+      "route": "internal",
+      "answer_contains": ["的", "品牌", "趋势"],
+      "answer_not_contains": ["Key data points", "dominates", "Weekend effect"]
+    }
+  }
+]

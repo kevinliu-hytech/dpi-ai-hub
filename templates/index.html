@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GBIS Business Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GBIS Business Analysis</h1>
+            <div class="connection-status">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="margin-right: 10px;">Data Dashboard</a>
+                <a href="{{ url_for('analyst') }}" class="btn btn-primary" style="margin-right: 10px;">Deep Insight</a>
+                <button id="history-btn" class="btn btn-secondary" onclick="toggleHistoryPanel()">History <span id="history-count" class="badge">0</span></button>
+                <button id="test-connection-btn" class="btn btn-secondary">Test Connection</button>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Admin</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+                <span id="connection-status"></span>
+            </div>
+        </header>
+
+        <main>
+            <!-- AI Natural Language Section -->
+            <section class="ai-section" id="ai-section">
+                <div class="section-header">
+                    <h2>Ask in Natural Language</h2>
+                    <div class="ai-status" id="ai-status-indicator">
+                        <span class="status-dot"></span>
+                        <span id="ai-status-text">Checking AI status...</span>
+                    </div>
+                </div>
+                <div class="ai-input-container">
+                    <input
+                        type="text"
+                        id="nl-input"
+                        placeholder="Ask anything about your data... e.g., 'Show me daily FTD for the last 7 days'"
+                        class="nl-input"
+                    />
+                    <button id="generate-query-btn" class="btn btn-primary">Generate Query</button>
+                </div>
+                <div id="ai-status-message" class="status-message"></div>
+            </section>
+
+            <!-- Query Section -->
+            <section class="query-section">
+                <div class="section-header">
+                    <h2>SQL Query Editor</h2>
+                    <div class="query-actions">
+                        <select id="saved-queries" class="form-select">
+                            <option value="">-- Load Saved Query --</option>
+                        </select>
+                        <button id="execute-btn" class="btn btn-primary">Execute Query</button>
+                        <button id="clear-btn" class="btn btn-secondary">Clear</button>
+                    </div>
+                </div>
+                <textarea id="query-input" placeholder="Enter your SQL query here...
+Example: SELECT * FROM your_table LIMIT 10"></textarea>
+
+                <div id="query-status" class="status-message"></div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="results-section">
+                <div class="section-header">
+                    <h2>Query Results</h2>
+                    <div class="results-actions">
+                        <div id="results-info"></div>
+                        <button id="analyze-btn" class="btn btn-secondary" style="display: none;">
+                            AI Analysis
+                        </button>
+                    </div>
+                </div>
+                <div id="results-container">
+                    <p class="placeholder">Execute a query to see results</p>
+                </div>
+            </section>
+
+            <!-- AI Analysis Section -->
+            <section class="analysis-section" id="analysis-section" style="display: none;">
+                <div class="section-header">
+                    <h2>AI Insights & Analysis</h2>
+                </div>
+                <div id="analysis-container" class="analysis-content">
+                    <p class="placeholder">Click "AI Analysis" to get insights on your data</p>
+                </div>
+            </section>
+
+            <!-- Visualization Section -->
+            <section class="visualization-section">
+                <div class="section-header">
+                    <h2>Data Visualization</h2>
+                    <div class="chart-controls" id="chart-controls" style="display: none;">
+                        <select id="chart-type" class="form-select">
+                            <option value="bar">Bar Chart</option>
+                            <option value="line">Line Chart</option>
+                            <option value="pie">Pie Chart</option>
+                            <option value="scatter">Scatter Plot</option>
+                        </select>
+                        <select id="x-column" class="form-select">
+                            <option value="">Select X Column</option>
+                        </select>
+                        <select id="y-column" class="form-select">
+                            <option value="">Select Y Column</option>
+                        </select>
+                        <button id="generate-chart-btn" class="btn btn-primary">Generate Chart</button>
+                    </div>
+                </div>
+                <div id="chart-container">
+                    <p class="placeholder">Select columns and generate a chart from your query results</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- History Panel -->
+    <div id="history-overlay" class="history-overlay" style="display: none;" onclick="toggleHistoryPanel()"></div>
+    <aside id="history-panel" class="history-panel" style="display: none;">
+        <div class="history-header">
+            <h3>Query History</h3>
+            <button onclick="toggleHistoryPanel()" class="btn-close">&times;</button>
+        </div>
+        <div id="history-list" class="history-list">
+            <p style="color: #666; text-align: center; padding: 40px 20px;">No query history yet</p>
+        </div>
+    </aside>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPI AI Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/gbis-ai-hub/static/chat_style.css?v=5">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        .agent-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+        .agent-badge.internal { background: #dbeafe; color: #1d4ed8; }
+        .agent-badge.external { background: #fef3c7; color: #92400e; }
+        .agent-badge.placeholder { background: #f3f4f6; color: #6b7280; }
+        .lang-toggle {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 10;
+        }
+        .lang-toggle button {
+            border: none;
+            background: none;
+            padding: 6px 14px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.2s;
+        }
+        .lang-toggle button.active {
+            background: #1a1a2e;
+            color: #fff;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">H</div>
+                    <span class="logo-text">DPI AI Hub</span>
+                </div>
+                <button class="new-chat-btn" onclick="newConversation()">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    New Chat
+                </button>
+            </div>
+            <div class="sidebar-conversations" id="conversationList">
+            </div>
+            <div class="sidebar-footer">
+                <div class="manage-bar" id="manageBar" style="display:none;">
+                    <button class="manage-action-btn delete" onclick="deleteSelected()">Delete Selected</button>
+                    <button class="manage-action-btn cancel" onclick="toggleManage()">Cancel</button>
+                </div>
+                <div class="footer-actions" style="display:flex;gap:8px;">
+                    <button class="manage-btn" id="manageBtn" onclick="toggleManage()" style="flex:1;">History Manage</button>
+                    {% if is_admin %}
+                    <a href="/gbis-ai-hub/hub/admin" class="manage-btn" style="flex:1;text-decoration:none;text-align:center;">Admin</a>
+                    {% else %}
+                    <span class="manage-btn" style="flex:1;text-align:center;opacity:0.4;cursor:not-allowed;">Admin</span>
+                    {% endif %}
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">{{ user_initial }}</div>
+                    <span>{{ user_name }}</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main" style="position:relative;">
+            <!-- Language Toggle -->
+            <div class="lang-toggle" id="langToggle">
+                <button class="active" onclick="setLang('zh')">中文</button>
+                <button onclick="setLang('en')">EN</button>
+            </div>
+
+            <!-- Welcome screen -->
+            <div class="welcome-screen" id="welcomeScreen">
+                <div class="welcome-content">
+                    <h1>DPI AI Hub</h1>
+                    <p id="welcomeDesc">统一数据分析入口。提问后自动识别数据来源，路由到对应分析引擎。</p>
+                    <div class="suggestion-grid" id="suggestionGrid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages container -->
+            <div class="messages-container" id="messagesContainer">
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <!-- Input area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <textarea
+                        id="messageInput"
+                        placeholder="Ask about internal or external data..."
+                        rows="1"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 10l7-7m0 0l7 7m-7-7v14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90, 10, 10)"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-footer" id="inputFooter">
+                    DPI AI Hub — 自动路由到内部数据或外部数据分析引擎
+                </div>
+                <div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:4px;">
+                    DPI 部门 · Developed by Kevin Liu, Uyen Mai Phan Ngoc and Lim Chia Chung
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/gbis-ai-hub/hub';
+
+        const i18n = {
+            zh: {
+                desc: '统一数据分析入口。提问后自动识别数据来源，路由到对应分析引擎。',
+                placeholder: '输入问题，支持内部数据和外部数据分析...',
+                footer: 'DPI AI Hub — 自动路由到内部数据或外部数据分析引擎',
+                newChat: 'New Chat',
+                suggestions: [
+                    { title: '内部 · NRFR 达成', desc: 'STAR品牌 vs 季度目标', query: 'STAR品牌本季度NRFR表现如何？对比目标完成情况' },
+                    { title: '内部 · 品牌对比', desc: 'TDAU和收入 跨品牌分析', query: '对比各品牌本月TDAU和收入表现' },
+                    { title: '外部 · 社交媒体', desc: '竞品YouTube/TikTok粉丝增长', query: 'XM和Exness在YouTube的粉丝数和增长趋势对比' },
+                    { title: '外部 · 行业动态', desc: '竞品最新动向与监管政策', query: '外汇行业近期有什么重要新闻和监管变化？' }
+                ]
+            },
+            en: {
+                desc: 'Unified analytics portal. Questions are auto-routed to the relevant data engine.',
+                placeholder: 'Ask about internal metrics or external market data...',
+                footer: 'DPI AI Hub — Auto-routes to internal or external analytics engine',
+                newChat: 'New Chat',
+                suggestions: [
+                    { title: 'Internal · NRFR', desc: 'STAR brand vs quarterly target', query: 'How is STAR brand NRFR performance this quarter vs target?' },
+                    { title: 'Internal · Brand Compare', desc: 'TDAU & revenue cross-brand', query: 'Compare all brands TDAU and revenue this month' },
+                    { title: 'External · Social Media', desc: 'Competitor YouTube/TikTok growth', query: 'Compare XM and Exness YouTube subscribers and growth trends' },
+                    { title: 'External · Industry News', desc: 'Latest competitor & regulatory moves', query: 'What are the latest news and regulatory changes in the forex industry?' }
+                ]
+            }
+        };
+
+        function setLang(lang) {
+            localStorage.setItem('hub_lang', lang);
+            const btns = document.querySelectorAll('.lang-toggle button');
+            btns.forEach(b => b.classList.remove('active'));
+            btns[lang === 'zh' ? 0 : 1].classList.add('active');
+            applyLang(lang);
+        }
+
+        function applyLang(lang) {
+            const t = i18n[lang];
+            document.getElementById('welcomeDesc').textContent = t.desc;
+            document.getElementById('messageInput').placeholder = t.placeholder;
+            document.getElementById('inputFooter').textContent = t.footer;
+
+            const grid = document.getElementById('suggestionGrid');
+            grid.innerHTML = t.suggestions.map(s =>
+                `<button class="suggestion-card" onclick="sendSuggestion('${s.query.replace(/'/g, "\\'")}')">
+                    <div class="suggestion-title">${s.title}</div>
+                    <div class="suggestion-desc">${s.desc}</div>
+                </button>`
+            ).join('');
+        }
+
+        // Init language on load
+        (function() {
+            const saved = localStorage.getItem('hub_lang') || 'zh';
+            setLang(saved);
+        })();
+    </script>
+    <script src="/gbis-ai-hub/static/chat_app.js?v=8"></script>
+</body>
+</html>

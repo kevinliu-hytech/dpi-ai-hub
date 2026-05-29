@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Insight - GBIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analyst.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="analyst-container">
+        <!-- Header -->
+        <header class="analyst-header">
+            <div class="header-content">
+                <h1>Deep Insight</h1>
+                <p>AI-Powered Deep Analysis Engine</p>
+            </div>
+            <div class="header-actions">
+                <button id="language-toggle" class="btn-icon" title="Switch Language">
+                    <span id="language-label">EN</span>
+                </button>
+                <button id="sessions-btn" class="btn-icon" title="Conversation History">
+                    History <span id="sessions-count" class="badge">0</span>
+                </button>
+                <button id="clear-btn" class="btn-icon" title="Clear conversation">
+                    Clear
+                </button>
+                <a href="{{ url_for('index') }}" class="btn-icon">GBIS Analysis</a>
+                <a href="{{ url_for('dashboard') }}" class="btn-icon">Data Dashboard</a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}" class="btn-icon">Admin</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn-icon" style="color: #f87171;">Logout</a>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="analyst-main">
+            <!-- Conversation History -->
+            <div id="conversation" class="conversation-container">
+                <div class="welcome-message">
+                    <h2>Welcome to Deep Insight</h2>
+                    <p>AI-powered deep analysis. Ask complex questions and I'll:</p>
+                    <ul>
+                        <li>+ Break down your question into multiple analyses</li>
+                        <li>+ Execute all necessary queries automatically</li>
+                        <li>+ Generate appropriate visualizations</li>
+                        <li>+ Provide comprehensive insights</li>
+                        <li>+ Format everything for presentation</li>
+                    </ul>
+                    <div class="example-questions">
+                        <p><strong>Try asking:</strong></p>
+                        <div class="examples-grid">
+                            <button class="example-btn" data-question="What are the top performing countries? Show me FTD, deposits, and trading volume trends by brand.">
+                                Top countries performance analysis
+                            </button>
+                            <button class="example-btn" data-question="Compare sales team performance across different metrics and identify the strongest performers.">
+                                Sales team comparison
+                            </button>
+                            <button class="example-btn" data-question="Analyze the relationship between FTD and trading volume. Are there patterns by country or time?">
+                                FTD vs Trading patterns
+                            </button>
+                            <button class="example-btn" data-question="Show me weekly trends in revenue, deposits, and PnL. Highlight any anomalies or significant changes.">
+                                Revenue trends & anomalies
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea
+                        id="analyst-input"
+                        placeholder="Ask any complex question... e.g., 'Analyze STAR brand revenue components and trends'"
+                        rows="3"
+                    ></textarea>
+                    <button id="analyze-btn" class="btn-primary">
+                        <span class="btn-text">Analyze</span>
+                        <span class="btn-loading" style="display: none;">Analyzing...</span>
+                    </button>
+                </div>
+                <div class="input-hint">
+                    Tip: Ask complex questions - multiple queries, visualizations, and insights will be generated automatically.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sessions Panel -->
+    <div id="sessions-overlay" class="sessions-overlay" style="display: none;" onclick="toggleSessionsPanel()"></div>
+    <aside id="sessions-panel" class="sessions-panel" style="display: none;">
+        <div class="sessions-header">
+            <h3>Past Conversations</h3>
+            <button onclick="toggleSessionsPanel()" class="btn-close">&times;</button>
+        </div>
+        <div id="sessions-list" class="sessions-list">
+            <p style="color: #666; text-align: center; padding: 40px 20px;">No saved conversations</p>
+        </div>
+    </aside>
+
+    <script src="{{ url_for('static', filename='js/analyst.js') }}"></script>
+</body>
+</html>

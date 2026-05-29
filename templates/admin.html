@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - GBIS Business Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            color: #1d1d1f;
+        }
+        .admin-header {
+            background: #3a3a3c;
+            color: #fff;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 { font-size: 22px; font-weight: 600; }
+        .admin-header a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 980px;
+            font-size: 14px;
+        }
+        .admin-header a:hover { background: rgba(255,255,255,0.2); }
+        .admin-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+        }
+        .add-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .add-form input[type="email"] {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 16px;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 15px;
+            background: #fafafa;
+            outline: none;
+        }
+        .add-form input[type="email"]:focus {
+            border-color: #0071e3;
+            background: #fff;
+        }
+        .add-form label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #6e6e73;
+            cursor: pointer;
+        }
+        .add-form input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        .btn-add {
+            padding: 12px 24px;
+            background: #0071e3;
+            color: #fff;
+            border: none;
+            border-radius: 980px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-add:hover { background: #0077ed; }
+        .email-list {
+            list-style: none;
+        }
+        .email-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f3;
+        }
+        .email-item:last-child { border-bottom: none; }
+        .email-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .email-address {
+            font-size: 15px;
+            color: #1d1d1f;
+        }
+        .badge-admin {
+            background: #0071e3;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 980px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-registered {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 2px 10px;
+            border-radius: 980px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-pending {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 10px;
+            border-radius: 980px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .btn-remove {
+            background: none;
+            border: 1px solid #d2d2d7;
+            color: #86868b;
+            padding: 6px 14px;
+            border-radius: 980px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-remove:hover {
+            border-color: #ff3b30;
+            color: #ff3b30;
+        }
+        .user-meta {
+            font-size: 12px;
+            color: #86868b;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Admin Settings</h1>
+        <div>
+            <a href="{{ url_for('index') }}">GBIS Analysis</a>
+            <a href="{{ url_for('analyst') }}">Deep Insight</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <!-- Add Email -->
+        <div class="card">
+            <h2>Add Authorized Email</h2>
+            <form method="POST" action="{{ url_for('admin_add_email') }}" class="add-form">
+                <input type="email" name="email" placeholder="user@company.com" required>
+                <label>
+                    <input type="checkbox" name="is_admin">
+                    Admin
+                </label>
+                <button type="submit" class="btn-add">Add Email</button>
+            </form>
+        </div>
+
+        <!-- Email Whitelist -->
+        <div class="card">
+            <h2>Authorized Emails ({{ allowed_emails|length }})</h2>
+            <ul class="email-list">
+                {% for email in allowed_emails %}
+                <li class="email-item">
+                    <div>
+                        <div class="email-info">
+                            <span class="email-address">{{ email }}</span>
+                            {% if email in admin_emails %}
+                            <span class="badge-admin">Admin</span>
+                            {% endif %}
+                            {% if email in registered_users %}
+                            <span class="badge-registered">Registered</span>
+                            {% else %}
+                            <span class="badge-pending">Pending</span>
+                            {% endif %}
+                        </div>
+                        {% if email in registered_users %}
+                        <div class="user-meta">
+                            {{ registered_users[email].get('name', '') }} | Joined {{ registered_users[email].get('registered_at', '')[:10] }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <form method="POST" action="{{ url_for('admin_remove_email') }}" style="margin:0;"
+                          onsubmit="return confirm('Remove {{ email }}?')">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <button type="submit" class="btn-remove">Remove</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

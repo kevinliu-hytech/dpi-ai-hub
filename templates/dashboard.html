@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Dashboard - GBIS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Data Dashboard</h1>
+                <p>Ask a question, get a chart</p>
+            </div>
+            <div class="header-actions">
+                <button id="language-toggle" class="btn-icon" title="Switch Language">
+                    <span id="language-label">EN</span>
+                </button>
+                <button id="sessions-btn" class="btn-icon" title="History">
+                    History <span id="sessions-count" class="badge">0</span>
+                </button>
+                <button id="clear-btn" class="btn-icon" title="Clear">Clear</button>
+                <a href="{{ url_for('index') }}" class="btn-icon">GBIS Analysis</a>
+                <a href="{{ url_for('analyst') }}" class="btn-icon">Deep Insight</a>
+                {% if current_user.role == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}" class="btn-icon">Admin</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn-icon" style="color: #f87171;">Logout</a>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <div id="conversation" class="conversation-container">
+                <div class="welcome-message">
+                    <h2>Welcome to Data Dashboard</h2>
+                    <p>Ask a question about your data and get an instant chart. The best visualization type is chosen automatically.</p>
+                    <div class="example-questions">
+                        <p><strong>Try asking:</strong></p>
+                        <div class="examples-grid">
+                            <button class="example-btn" data-question="Show me daily FTD count for the last 30 days">
+                                Daily FTD trend (30 days)
+                            </button>
+                            <button class="example-btn" data-question="Top 10 countries by gross deposit this month">
+                                Top countries by deposit
+                            </button>
+                            <button class="example-btn" data-question="Weekly trading volume trend for the last 3 months">
+                                Weekly trading volume trend
+                            </button>
+                            <button class="example-btn" data-question="Revenue breakdown by component: spread, commission, swaps, dividend, rollover for last 30 days">
+                                Revenue component breakdown
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea
+                        id="dashboard-input"
+                        placeholder="Ask any question about your data... e.g., 'Show me daily FTD for the last 30 days'"
+                        rows="2"
+                    ></textarea>
+                    <button id="analyze-btn" class="btn-primary">
+                        <span class="btn-text">Visualize</span>
+                        <span class="btn-loading" style="display: none;">Generating...</span>
+                    </button>
+                </div>
+                <div class="input-hint">
+                    Each question generates one chart automatically. The best chart type is selected based on your data.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Sessions Panel -->
+    <div id="sessions-overlay" class="sessions-overlay" style="display: none;" onclick="toggleSessionsPanel()"></div>
+    <aside id="sessions-panel" class="sessions-panel" style="display: none;">
+        <div class="sessions-header">
+            <h3>Past Sessions</h3>
+            <button onclick="toggleSessionsPanel()" class="btn-close">&times;</button>
+        </div>
+        <div id="sessions-list" class="sessions-list">
+            <p style="color: #666; text-align: center; padding: 40px 20px;">No saved sessions</p>
+        </div>
+    </aside>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
