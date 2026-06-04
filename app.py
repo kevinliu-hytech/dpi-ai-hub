@@ -19,6 +19,20 @@ app.config.from_object(Config)
 app.secret_key = Config.SECRET_KEY
 CORS(app)
 
+class PrefixMiddleware:
+    def __init__(self, app):
+        self.app = app
+    def __call__(self, environ, start_response):
+        prefix = environ.get('HTTP_X_FORWARDED_PREFIX', '')
+        if prefix:
+            environ['SCRIPT_NAME'] = prefix
+            path_info = environ.get('PATH_INFO', '')
+            if path_info.startswith(prefix):
+                environ['PATH_INFO'] = path_info[len(prefix):]
+        return self.app(environ, start_response)
+
+app.wsgi_app = PrefixMiddleware(app.wsgi_app)
+
 # --- Access Control ---
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -352,6 +366,15 @@ def execute_query(query, params=None):
             connection.close()
 
 @app.route('/')
+@login_required
+def portal():
+    """Render the portal navigation page - admin only, others go to hub"""
+    email = session.get('user_email', '').lower()
+    if email not in load_admin_emails():
+        return redirect(url_for('hub_index'))
+    return render_template('portal.html')
+
+@app.route('/data-analysis')
 @login_required
 def index():
     """Render the main dashboard page"""

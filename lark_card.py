@@ -47,16 +47,30 @@ def build_response_card(answer, chart_image_key=None, chart_url=None, suggestion
             'actions': actions
         })
 
-    # Bottom actions
+    # Bottom actions: feedback + new conversation
     elements.append({'tag': 'hr'})
     elements.append({
         'tag': 'action',
-        'actions': [{
-            'tag': 'button',
-            'text': {'tag': 'plain_text', 'content': '🔄 开启新对话'},
-            'type': 'default',
-            'value': {'action': 'new_conversation'}
-        }]
+        'actions': [
+            {
+                'tag': 'button',
+                'text': {'tag': 'plain_text', 'content': '👍 有用'},
+                'type': 'default',
+                'value': {'action': 'digest_feedback', 'rating': 'good'}
+            },
+            {
+                'tag': 'button',
+                'text': {'tag': 'plain_text', 'content': '👎 没用'},
+                'type': 'default',
+                'value': {'action': 'digest_feedback', 'rating': 'bad'}
+            },
+            {
+                'tag': 'button',
+                'text': {'tag': 'plain_text', 'content': '🔄 开启新对话'},
+                'type': 'default',
+                'value': {'action': 'new_conversation'}
+            }
+        ]
     })
 
     card = {

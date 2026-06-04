@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPI Analytics Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+        }
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 36px 28px;
+            text-decoration: none;
+            color: #333;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 14px;
+        }
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        .footer {
+            margin-top: 50px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DPI Analytics Portal</h1>
+        <p class="subtitle">Select a tool to get started</p>
+        <div class="grid">
+            <a href="/ai-data-analysis/data-analysis" class="card">
+                <div class="card-icon">📊</div>
+                <div class="card-title">Data Analysis</div>
+                <div class="card-desc">SQL query builder with AI-powered analysis and visualization</div>
+            </a>
+            <a href="/ai-data-analysis/dashboard" class="card">
+                <div class="card-icon">📈</div>
+                <div class="card-title">Dashboard</div>
+                <div class="card-desc">Visual analytics dashboard for KPI monitoring</div>
+            </a>
+            <a href="/ai-data-analysis/analyst" class="card">
+                <div class="card-icon">🤖</div>
+                <div class="card-title">AI Analyst</div>
+                <div class="card-desc">Natural language data exploration and insights</div>
+            </a>
+            <a href="/ai-data-analysis/hub" class="card">
+                <div class="card-icon">🧠</div>
+                <div class="card-title">AI Hub</div>
+                <div class="card-desc">Multi-source intelligence with internal and external data routing</div>
+            </a>
+        </div>
+        <div class="footer">DPI Department - Developed by Kevin Liu, Uyen Mai Phan Ngoc and Lim Chia Chung</div>
+    </div>
+</body>
+</html>

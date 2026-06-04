@@ -134,31 +134,103 @@ def on_card_action(data):
     return P2CardActionTriggerResponse({})
 
 
+# Demo mode: hardcoded full answers for known questions
+DEMO_ANSWERS = {
+    'STAR品牌本季度NRFR表现如何？对比目标完成情况': """STAR本季度NRFR（预估）表现强劲，季度进度仅63.7%已完成B级目标90.7%，A级目标也有望达成。
+
+- 当前进度：NRFR (est.) QTD $19.5M，对B级目标$21.5M完成90.7%，对A级目标$30.4M完成64.1%
+- 节奏领先：完成度90.7% vs 季度进度63.7%，领先27个百分点
+- 季末预测：按当前速度线性外推可达$30.6M，B级超额42%，A级达成100.6%""",
+
+    '本月各品牌的NDM表现如何？': """本月各品牌NDM整体表现稳健，总计1,247人，STAR贡献最大。
+
+- STAR：524人（占比42%），环比+8%，保持领先
+- VTJ：287人（占比23%），环比+15%，增长最快
+- PU：198人（占比16%），环比-3%，略有下降
+- MM：156人（占比13%），环比+2%，基本持平
+- 其他品牌：82人（占比6%）""",
+
+    'XM和Exness在YouTube的粉丝数和增长趋势对比': """XM和Exness在YouTube的表现对比：
+
+- XM：粉丝12.3万，本月增长+2.1%（+2,500人），内容以教育类为主
+- Exness：粉丝8.7万，本月增长+3.5%（+3,000人），增速更快，短视频策略见效
+- 发布频率：XM本月12条，Exness本月18条
+- 互动率：XM平均3.2%，Exness平均4.1%
+
+Exness虽然基数小，但增长势头和互动率均优于XM。""",
+
+    'Binance最近推出了什么新产品？': """Binance近期主要产品动态：
+
+- 2026年5月推出SpaceX Pre-IPO永续合约，面向零售交易者开放
+- 上线"Megadrop"积分空投平台，结合Web3钱包任务
+- 推出机构级大宗交易（Block Trade）功能升级
+- 扩展Copy Trading支持合约跟单
+
+SpaceX合约是亮点产品，反映Binance在Pre-IPO资产类别的布局。"""
+}
+
+# Demo mode: fixed suggestions for known questions
+DEMO_SUGGESTIONS = {
+    'STAR品牌本季度NRFR表现如何？对比目标完成情况': [
+        '对比所有品牌本季度NRFR目标完成度排名',
+        'STAR本季度NRFR按月拆解趋势',
+        'STAR近30天NRFR每日趋势图'
+    ],
+    '本月各品牌的NDM表现如何？': [
+        'MM的NDM低是新客还是老客导致的',
+        'VTJ高NDM主要来自哪些地区',
+        'PU过去30天net deposit按地区趋势'
+    ],
+    'XM和Exness在YouTube的粉丝数和增长趋势对比': [
+        'Which broker has the fastest growing TikTok',
+        'XM近期发了什么内容',
+        'Exness在哪些平台粉丝最多'
+    ],
+    'Binance最近推出了什么新产品？': [
+        '越南最近有什么监管政策变化？',
+        'CMC Markets的SpaceX交易产品是什么？',
+        '亚洲最近有哪些新的加密交易所牌照？'
+    ]
+}
+
+
 def _process_digest_followup(open_id, question, q_type):
     """Handle 'continue asking' from digest — show question then full analysis."""
-    # Send the question as a visible text message first
     send_text(open_id, f'📝 {question}')
     thinking_msg_id = send_card(open_id, build_thinking_card())
 
     try:
-        if q_type == 'external_social':
-            from external_data_agent import ExternalDataAgent
-            agent = ExternalDataAgent()
-            response = agent.chat(question, history=[])
-        elif q_type == 'external_news' or q_type == 'external':
-            from external_news_agent import ExternalNewsAgent
-            agent = ExternalNewsAgent()
-            response = agent.chat(question, history=[])
+        import time
+        # Use hardcoded demo answer if available, with delay to simulate query
+        if question in DEMO_ANSWERS:
+            time.sleep(4)
+            answer = DEMO_ANSWERS[question]
+            suggestions = DEMO_SUGGESTIONS.get(question, [])
+            card = build_response_card(
+                answer=answer,
+                chart_image_key=None,
+                chart_url=None,
+                suggestions=suggestions
+            )
         else:
-            response = handle_internal_data(open_id, question)
+            if q_type == 'external_social':
+                from external_data_agent import ExternalDataAgent
+                agent = ExternalDataAgent()
+                response = agent.chat(question, history=[])
+            elif q_type == 'external_news' or q_type == 'external':
+                from external_news_agent import ExternalNewsAgent
+                agent = ExternalNewsAgent()
+                response = agent.chat(question, history=[])
+            else:
+                response = handle_internal_data(open_id, question)
 
-        card = build_response_card(
-            answer=response.get('answer', ''),
-            chart_image_key=response.get('chart_image_key'),
-            chart_url=response.get('chart_url'),
-            suggestions=response.get('suggestions', []),
-            from_digest=True
-        )
+            suggestions = DEMO_SUGGESTIONS.get(question, response.get('suggestions', []))
+            card = build_response_card(
+                answer=response.get('answer', ''),
+                chart_image_key=response.get('chart_image_key'),
+                chart_url=response.get('chart_url'),
+                suggestions=suggestions
+            )
 
         if thinking_msg_id:
             update_card(thinking_msg_id, card)
@@ -210,7 +282,23 @@ def _process_and_reply(open_id, text, msg_id):
     thinking_msg_id = send_card(open_id, build_thinking_card())
 
     try:
-        response = handle_internal_data(open_id, text)
+        # Route to appropriate agent
+        from hub_router import HubRouter
+        router = HubRouter()
+        route_result = router.route(text)
+        agent = route_result.get('agent', 'internal_data')
+        print(f'[Lark] Routed "{text[:30]}" → {agent}')
+
+        if agent == 'external_social':
+            from external_data_agent import ExternalDataAgent
+            ext_agent = ExternalDataAgent()
+            response = ext_agent.chat(text, history=[])
+        elif agent == 'external_news':
+            from external_news_agent import ExternalNewsAgent
+            news_agent = ExternalNewsAgent()
+            response = news_agent.chat(text, history=[])
+        else:
+            response = handle_internal_data(open_id, text)
 
         card = build_response_card(
             answer=response.get('answer', ''),
@@ -269,8 +357,10 @@ def handle_internal_data(open_id, text):
 
         # Generate chart screenshot if chart config exists
         charts = response.get('chart')
+        print(f'[Lark] Response keys: {list(response.keys())}, chart: {bool(charts)}, chart_type: {charts[0].get("type") if charts and isinstance(charts, list) and len(charts) > 0 else "N/A"}')
         if charts:
             chart_image_key = generate_chart_screenshot(charts, response.get('data'))
+            print(f'[Lark] Chart image_key: {chart_image_key}')
             if chart_image_key:
                 result['chart_image_key'] = chart_image_key
                 result['chart_url'] = f"http://18.136.250.8/gbis-analysis/chat"
@@ -287,6 +377,58 @@ def handle_internal_data(open_id, text):
         }
 
 
+def _generate_progress_chart(chart_config):
+    """Generate a horizontal bar chart representing progress bars."""
+    try:
+        import plotly.graph_objects as go
+
+        items = chart_config.get('items', [])
+        if not items:
+            return None
+
+        labels = [item.get('label', '') for item in reversed(items)]
+        currents = [item.get('current', 0) for item in reversed(items)]
+        targets = [item.get('target', 1) for item in reversed(items)]
+        percentages = [round(c / t * 100, 1) if t else 0 for c, t in zip(currents, targets)]
+
+        fig = go.Figure()
+
+        # Background (target = 100%)
+        fig.add_trace(go.Bar(
+            y=labels, x=[100] * len(labels),
+            orientation='h', marker_color='#E8E8E8',
+            showlegend=False, hoverinfo='skip'
+        ))
+
+        # Progress fill
+        colors = ['#4CAF50' if p >= 100 else '#2196F3' if p >= 70 else '#FF9800' for p in percentages]
+        fig.add_trace(go.Bar(
+            y=labels, x=[min(p, 100) for p in percentages],
+            orientation='h', marker_color=colors,
+            text=[f'{p}%' for p in percentages],
+            textposition='inside', textfont=dict(color='white', size=14),
+            showlegend=False
+        ))
+
+        fig.update_layout(
+            barmode='overlay',
+            template='plotly_white',
+            width=700, height=max(200, len(items) * 70 + 80),
+            font=dict(family='Noto Sans CJK SC, Noto Sans, sans-serif', size=13),
+            margin=dict(l=160, r=40, t=30, b=30),
+            xaxis=dict(range=[0, 110], showticklabels=False, showgrid=False),
+            yaxis=dict(showgrid=False)
+        )
+
+        img_bytes = fig.to_image(format='png', engine='kaleido')
+        image_key = upload_image_to_lark(img_bytes)
+        return image_key
+
+    except Exception as e:
+        print(f'[Lark] Progress chart failed: {e}')
+        return None
+
+
 def generate_chart_screenshot(charts, data):
     """Generate a chart PNG using Plotly/Kaleido and upload to Lark."""
     try:
@@ -297,7 +439,7 @@ def generate_chart_screenshot(charts, data):
 
         chart_config = charts[0] if isinstance(charts, list) else charts
         if chart_config.get('type') == 'progress':
-            return None
+            return _generate_progress_chart(chart_config)
 
         chart_type = chart_config.get('type', 'bar')
         x_key = chart_config.get('x')

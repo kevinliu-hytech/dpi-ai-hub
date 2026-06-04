@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DPI AI Hub</title>
+    <title>Pulse Insight</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/gbis-ai-hub/static/chat_style.css?v=5">
+    <link rel="stylesheet" href="/ai-data-analysis/static/chat_style.css?v=5">
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         .agent-badge {
@@ -53,8 +53,8 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <div class="logo-icon">H</div>
-                    <span class="logo-text">DPI AI Hub</span>
+                    <div class="logo-icon">P</div>
+                    <span class="logo-text">Pulse Insight</span>
                 </div>
                 <button class="new-chat-btn" onclick="newConversation()">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -73,7 +73,8 @@
                 <div class="footer-actions" style="display:flex;gap:8px;">
                     <button class="manage-btn" id="manageBtn" onclick="toggleManage()" style="flex:1;">History Manage</button>
                     {% if is_admin %}
-                    <a href="/gbis-ai-hub/hub/admin" class="manage-btn" style="flex:1;text-decoration:none;text-align:center;">Admin</a>
+                    <a href="/ai-data-analysis/hub/admin" class="manage-btn" style="flex:1;text-decoration:none;text-align:center;">Admin</a>
+                    <a href="/ai-data-analysis/" class="manage-btn" style="flex:1;text-decoration:none;text-align:center;">Portal</a>
                     {% else %}
                     <span class="manage-btn" style="flex:1;text-align:center;opacity:0.4;cursor:not-allowed;">Admin</span>
                     {% endif %}
@@ -96,7 +97,7 @@
             <!-- Welcome screen -->
             <div class="welcome-screen" id="welcomeScreen">
                 <div class="welcome-content">
-                    <h1>DPI AI Hub</h1>
+                    <h1>Pulse Insight</h1>
                     <p id="welcomeDesc">统一数据分析入口。提问后自动识别数据来源，路由到对应分析引擎。</p>
                     <div class="suggestion-grid" id="suggestionGrid">
                     </div>
@@ -125,7 +126,7 @@
                     </button>
                 </div>
                 <div class="input-footer" id="inputFooter">
-                    DPI AI Hub — 自动路由到内部数据或外部数据分析引擎
+                    Pulse Insight — 自动路由到内部数据或外部数据分析引擎
                 </div>
                 <div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:4px;">
                     DPI 部门 · Developed by Kevin Liu, Uyen Mai Phan Ngoc and Lim Chia Chung
@@ -135,13 +136,13 @@
     </div>
 
     <script>
-        const API_BASE = '/gbis-ai-hub/hub';
+        const API_BASE = '/ai-data-analysis/hub';
 
         const i18n = {
             zh: {
                 desc: '统一数据分析入口。提问后自动识别数据来源，路由到对应分析引擎。',
                 placeholder: '输入问题，支持内部数据和外部数据分析...',
-                footer: 'DPI AI Hub — 自动路由到内部数据或外部数据分析引擎',
+                footer: 'Pulse Insight — 自动路由到内部数据或外部数据分析引擎',
                 newChat: 'New Chat',
                 suggestions: [
                     { title: '内部 · NRFR 达成', desc: 'STAR品牌 vs 季度目标', query: 'STAR品牌本季度NRFR表现如何？对比目标完成情况' },
@@ -153,7 +154,7 @@
             en: {
                 desc: 'Unified analytics portal. Questions are auto-routed to the relevant data engine.',
                 placeholder: 'Ask about internal metrics or external market data...',
-                footer: 'DPI AI Hub — Auto-routes to internal or external analytics engine',
+                footer: 'Pulse Insight — Auto-routes to internal or external analytics engine',
                 newChat: 'New Chat',
                 suggestions: [
                     { title: 'Internal · NRFR', desc: 'STAR brand vs quarterly target', query: 'How is STAR brand NRFR performance this quarter vs target?' },
@@ -193,6 +194,6 @@
             setLang(saved);
         })();
     </script>
-    <script src="/gbis-ai-hub/static/chat_app.js?v=8"></script>
+    <script src="/ai-data-analysis/static/chat_app.js?v=8"></script>
 </body>
 </html>

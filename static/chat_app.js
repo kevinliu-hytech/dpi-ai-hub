@@ -1,6 +1,6 @@
 let currentConversationId = null;
 let isLoading = false;
-const BASE = typeof API_BASE !== 'undefined' ? API_BASE : '/gbis-analysis/chat';
+const BASE = typeof API_BASE !== 'undefined' ? API_BASE : '/ai-data-analysis/chat';
 
 function newConversation() {
     currentConversationId = null;

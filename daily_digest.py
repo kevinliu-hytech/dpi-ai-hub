@@ -99,16 +99,22 @@ def get_brief_answers(chat_engine, external_agent, bedrock, questions):
         q_type = item.get('type', 'internal') if isinstance(item, dict) else 'internal'
 
         try:
-            if q_type == 'external':
+            if q_type == 'external_social':
+                response = external_agent.chat(q, history=[])
+            elif q_type == 'external_news':
+                from external_news_agent import ExternalNewsAgent
+                news_agent = ExternalNewsAgent()
+                response = news_agent.chat(q, history=[])
+            elif q_type == 'external':
                 response = external_agent.chat(q, history=[])
             else:
                 response = chat_engine.chat(q, history=[])
 
             answer = response.get('answer', '')
-            # Use Haiku to compress to one sentence
             summary = _summarize_to_one_line(bedrock, q, answer)
             results.append({'question': q, 'summary': summary, 'type': q_type})
         except Exception as e:
+            print(f'[Digest] Error for "{q}": {e}')
             results.append({'question': q, 'summary': '点击查看详情', 'type': q_type})
     return results
 
@@ -146,7 +152,7 @@ def build_digest_card(user_name, digest_items, date_str):
     elements = []
 
     internal_items = [i for i in digest_items if i.get('type') == 'internal']
-    external_items = [i for i in digest_items if i.get('type') == 'external']
+    external_items = [i for i in digest_items if i.get('type') in ('external', 'external_social', 'external_news')]
 
     # Internal section
     num = 1
@@ -238,7 +244,22 @@ def requests_quote(text):
     return quote(text, safe='')
 
 
-def run_digest():
+DEMO_QUESTIONS = [
+    {'q': 'STAR品牌本季度NRFR表现如何？对比目标完成情况', 'type': 'internal'},
+    {'q': '本月各品牌的NDM表现如何？', 'type': 'internal'},
+    {'q': 'XM和Exness在YouTube的粉丝数和增长趋势对比', 'type': 'external_social'},
+    {'q': 'Binance最近推出了什么新产品？', 'type': 'external_news'}
+]
+
+DEMO_SUMMARIES = [
+    {'question': 'STAR品牌本季度NRFR表现如何？对比目标完成情况', 'summary': 'STAR本季NRFR $19.5M，B级目标完成90.7%，A级64.1%，按当前节奏季末可超额完成', 'type': 'internal'},
+    {'question': '本月各品牌的NDM表现如何？', 'summary': '本月NDM总计1,247人，STAR贡献42%领先，VTJ环比增长15%表现突出', 'type': 'internal'},
+    {'question': 'XM和Exness在YouTube的粉丝数和增长趋势对比', 'summary': 'XM YouTube粉丝12.3万，Exness 8.7万；XM本月增长2.1%，Exness增长3.5%', 'type': 'external_social'},
+    {'question': 'Binance最近推出了什么新产品？', 'summary': 'Binance于5月推出SpaceX Pre-IPO永续合约，面向零售交易者', 'type': 'external_news'}
+]
+
+
+def run_digest(demo=False):
     """Main entry: generate and push daily digest to all configured users."""
     print(f'[Digest] Starting daily digest at {datetime.now().isoformat()}')
 
@@ -247,14 +268,14 @@ def run_digest():
         print('[Digest] No users configured in digest_users.json')
         return
 
-    bedrock = _init_bedrock()
-    user_memory = UserMemory(bedrock_client=bedrock)
-    chat_engine = ChatEngine()
-
-    from external_data_agent import ExternalDataAgent
-    external_agent = ExternalDataAgent()
-
     today_str = datetime.now().strftime('%m月%d日')
+
+    if not demo:
+        bedrock = _init_bedrock()
+        user_memory = UserMemory(bedrock_client=bedrock)
+        chat_engine = ChatEngine()
+        from external_data_agent import ExternalDataAgent
+        external_agent = ExternalDataAgent()
 
     for email, config in digest_users.items():
         open_id = config.get('open_id')
@@ -266,25 +287,24 @@ def run_digest():
 
         print(f'[Digest] Generating for {name} ({email})...')
 
-        # Get user's topics from memory, fallback to defaults
-        topics = user_memory.get_topics(email) or DEFAULT_TOPICS
-
-        # Generate personalized questions (2 internal + 2 external)
-        questions = generate_digest_questions(bedrock, topics, name)
-
-        # Get one-sentence answer for each
-        digest_items = get_brief_answers(chat_engine, external_agent, bedrock, questions)
+        if demo:
+            digest_items = DEMO_SUMMARIES
+        else:
+            topics = user_memory.get_topics(email) or DEFAULT_TOPICS
+            questions = generate_digest_questions(bedrock, topics, name)
+            digest_items = get_brief_answers(chat_engine, external_agent, bedrock, questions)
 
         # Build and send card
         card = build_digest_card(name, digest_items, today_str)
         result = send_lark_card(open_id, card)
         print(f'[Digest] Sent to {name}: {result.get("msg", "unknown")}')
 
-
     print(f'[Digest] Done.')
 
 
 if __name__ == '__main__':
+    import sys
     from dotenv import load_dotenv
     load_dotenv()
-    run_digest()
+    demo_mode = '--demo' in sys.argv
+    run_digest(demo=demo_mode)

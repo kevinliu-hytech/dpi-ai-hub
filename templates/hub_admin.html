@@ -161,14 +161,14 @@
 </head>
 <body>
     <div class="admin-header">
-        <h1><div class="logo">H</div> Hub Admin</h1>
-        <a href="/gbis-ai-hub/hub">Back to Hub</a>
+        <h1><div class="logo">P</div> Pulse Insight Admin</h1>
+        <a href="/ai-data-analysis/hub">Back to Hub</a>
     </div>
 
     <div class="admin-container">
         <div class="card">
             <h2>Add Authorized Email</h2>
-            <form method="POST" action="/gbis-ai-hub/hub/admin/add-email" class="add-form">
+            <form method="POST" action="/ai-data-analysis/hub/admin/add-email" class="add-form">
                 <input type="email" name="email" placeholder="user@company.com" required>
                 <label>
                     <input type="checkbox" name="is_admin">
@@ -201,7 +201,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    <form method="POST" action="/gbis-ai-hub/hub/admin/remove-email" style="margin:0;"
+                    <form method="POST" action="/ai-data-analysis/hub/admin/remove-email" style="margin:0;"
                           onsubmit="return confirm('Remove {{ email }}?')">
                         <input type="hidden" name="email" value="{{ email }}">
                         <button type="submit" class="btn-remove">Remove</button>

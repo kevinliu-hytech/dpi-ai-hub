@@ -2,14 +2,14 @@
 
 可用Agent：
 - internal_data: GBIS/Hytech集团内部业务数据。包括：
-  - 自有品牌（GS, STAR, VTJ, PU, APAC, MM, UM, VT）的任何业绩指标
+  - 自有品牌（GS, STAR, VTJ, PU, APAC, MM, UM, VT, Vantage）的任何业绩指标
   - KPI: NRFR/NDM/RFR/TDAU/FTD、目标完成度、入金出金、交易量(trading volume)、收入(revenue)
   - 产品: Gold, 247 Gold, Forex, Crypto等交易品种的业务数据
   - 维度: 客户类型(Retail/IB/Hybrid)、客群结构、地区分析、国家分布、注册/激活/留存
   - 趋势/增长/对比 只要涉及自有品牌 → internal
 
 - external_social: 外部竞品社交媒体数据。包括：
-  - 竞品broker（XM, Exness, IC Markets, Pepperstone, Octa, Olymptrade, Capital.com, HFM, Vantage, Axi, TMGM, FBS, Plus500, IG, Interactive Brokers, Oanda, XTB, Equiti, MultiBank Group, CFI, ADSS, Moneta等非GBIS品牌）的社交媒体表现
+  - 竞品broker（XM, Exness, IC Markets, Pepperstone, Octa, Olymptrade, Capital.com, HFM, Axi, TMGM, FBS, Plus500, IG, Interactive Brokers, Oanda, XTB, Equiti, MultiBank Group, CFI, ADSS, Moneta等非GBIS品牌）的社交媒体表现
   - 社交媒体指标: followers, subscribers, views, posts, likes, engagement, content, reach, audience
   - 平台: YouTube, TikTok, Facebook, Instagram, X (Twitter)
   - 增长分析: growth, gaining followers, declining, fastest growing, platform coverage
@@ -30,7 +30,7 @@
   - "某国家监管有什么变化" → external_news
 
 关键判定规则：
-- 提到GS/STAR/VTJ/PU/APAC/MM/UM/VT的交易量/收入/用户数 → internal_data（即使提到Gold/Forex等商品名）
+- 提到GS/STAR/VTJ/PU/APAC/MM/UM/VT/Vantage的交易量/收入/用户数 → internal_data（即使提到Gold/Forex等商品名）
 - "247 Gold趋势/交易量" → internal_data（这是自有产品的业务数据）
 - 提到外部broker的社交媒体（followers/subscribers/views/posts/content/engagement）→ external_social
 - 行业新闻/竞品动态/监管政策/产品发布/市场趋势 → external_news
