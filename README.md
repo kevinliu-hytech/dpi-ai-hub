@@ -1,4 +1,4 @@
-# DPI AI Hub
+# Pulse Insight
 
 Unified analytics chatbot with intelligent 3-way routing. Questions are classified by intent and dispatched to the appropriate data engine.
 
